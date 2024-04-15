@@ -152,3 +152,7 @@ if (
     result.pii.age !== null
   )
 ```
+
+## Interface with Java - Type definitions
+
+**Type definition** files contain all the functions declared in the js module along with type annotaions for each one.
