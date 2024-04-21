@@ -1,3 +1,5 @@
+import axios from "axios";
+
 const weatherCodes: Record<number, string> = {
   0: "Clear sky",
   1: "Mainly clear",
@@ -30,10 +32,11 @@ const weatherCodes: Record<number, string> = {
 };
 
 interface CurrentWeatherApiResponse {
-  temperature: string;
+  temperature: number;
   windspeed: number;
   winddirection: number;
   weathercode: number;
+  // day or night
   is_day: number;
   time: string;
 }
@@ -42,7 +45,6 @@ export interface Temperature {
   value: number;
   unit: string;
 }
-
 const formatTemperature = (temp: Temperature): string =>
   `${temp.value}${temp.unit}`;
 
@@ -63,7 +65,7 @@ export class CurrentWeather {
 
   constructor(apiResponse: CurrentWeatherApiResponse) {
     this.temperature = {
-      value: parseInt(apiResponse.temperature),
+      value: apiResponse.temperature,
       unit: "C",
     };
     this.wind = {
@@ -82,15 +84,50 @@ export class CurrentWeather {
 
   format(): string {
     const descriptionLen = 16;
+
     const temp = "Temperature".padStart(descriptionLen, " ");
     const windSpeed = "Wind Speed".padStart(descriptionLen, " ");
     const condition = "Condition".padStart(descriptionLen, " ");
 
     const formatted: string[] = [];
-
     formatted.push(`${temp}: ${formatTemperature(this.temperature)}`);
     formatted.push(`${windSpeed}: ${formatWind(this.wind)}`);
     formatted.push(`${condition}: ${this.condition()}`);
+
     return formatted.join("\n");
+  }
+}
+
+export async function fetchWeatherData(
+  apiUrl: string,
+  lat: string,
+  lon: string
+): Promise<CurrentWeather> {
+  const options = {
+    method: "GET",
+    url: apiUrl,
+    params: {
+      latitude: lat,
+      longitude: lon,
+      hourly: "temperature_2m",
+      temperature_unit: "celsius",
+      windspeed_unit: "kmh",
+      current_weather: true,
+    },
+  };
+
+  const response = await axios.request(options);
+
+  if (response.status === 200) {
+    if (response.data?.current_weather !== undefined) {
+      // This might fail if the API changes. We'll see how to use Zod later to
+      // make this more type safe.
+      const res = response.data.current_weather as CurrentWeatherApiResponse;
+      return new CurrentWeather(res);
+    } else {
+      throw new Error("Received invalid API response");
+    }
+  } else {
+    throw new Error("Failed to fetch weather data");
   }
 }

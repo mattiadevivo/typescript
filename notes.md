@@ -84,6 +84,19 @@ type Color = "red" | "green" | "blue";
 type StrOrNum = string | number;
 ```
 
+## Discriminated Unions
+
+It is useful to create a type that only allows certain values.
+
+```ts
+type numbers = 1 | 2 | string | number;
+
+type AccountCreationMessage =
+  | { kind: "ok"; greeting: string }
+  | { kind: "passwordComplexityFailuer"; message: string }
+  | { kind: "usernameExists" };
+```
+
 ## Type Predicates
 
 Let's suppose we have the following types:
