@@ -227,3 +227,7 @@ type Rgb = "red" | "green" | "blue";
 ## Iterators
 
 Iterators use **generator functions** i.e. a function that run such as any other function until it **yield** a value, then the function state get saved and execution goes back to the caller. Next time the generator function gets calledm ut resumes from the saved state until either finished or yields another value.
+
+## Write your .d.ts file
+
+Whenever we need to generate TS type definition for JS functions we can create a `.d.ts` file.
